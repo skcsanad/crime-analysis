@@ -3,6 +3,11 @@
 *.sql
 *.pdf
 *.pt
+
+Notebooks
 .ipynb_checkpoints/
+__pycache__/
+Notebooks/new.ipynb
+
 
 
