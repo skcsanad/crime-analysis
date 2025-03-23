@@ -1,0 +1,8 @@
+# Data, documents and model weights
+*.csv
+*.sql
+*.pdf
+*.pt
+.ipynb_checkpoints/
+
+
