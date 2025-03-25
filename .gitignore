@@ -4,9 +4,15 @@
 *.pdf
 *.pt
 
-#Notebooks
+# Temporary files
 .ipynb_checkpoints/
 __pycache__/
+*pyc
+
+# Tensorboard logs
+Notebooks/runs
+
+# Unused notebooks
 Notebooks/new.ipynb
 
 

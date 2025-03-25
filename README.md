@@ -14,6 +14,8 @@
 - [x] Clean up requirements.txt
 - [ ] Add automatic downloading and preprocessing of the data to the dockerfile
 - [x] Add tensorboard tracking to PCAAAutoencoder training loop
+- [ ] Add global epochs and global steps to loss logging
+- [ ] Make model saving monitor reconstruction loss in the training loop when PCAAE_Loss is applied
 - [ ] Test out gpu access within docker image on another machine
 - [ ] Clean up the code, create a new branch for this state (clean version will go to the main branch)
 - [ ] Add more detailed description to readme
