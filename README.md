@@ -11,9 +11,10 @@
 - [x] Add tracking and printing of separate parts of loss (reconstruction, covariance and complete loss) to the training loop
 - [ ] Before increasing the latent dimension, the model should load back the weigths from the best model that has been saved
 - [x] Create the dockerfile
-- [ ] Clean up requirements.txt
+- [x] Clean up requirements.txt
 - [ ] Add automatic downloading and preprocessing of the data to the dockerfile
-- [ ] Add tensorboard tracking to PCAAAutoencoder training loop
+- [x] Add tensorboard tracking to PCAAAutoencoder training loop
+- [ ] Test out gpu access within docker image on another machine
 - [ ] Clean up the code, create a new branch for this state (clean version will go to the main branch)
 - [ ] Add more detailed description to readme
 
