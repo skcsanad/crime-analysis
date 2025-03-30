@@ -43,7 +43,8 @@ class ModelCheckPoint(CallBack):
                     metrics: dict,
                     model: nn.Module,
                     filename: str,
-                    verbose: bool=True):
+                    verbose: bool=True,
+                    **kwargs):
         
         if self.relation(metrics[self.monitored_metric], self.best_value):
             if verbose:
@@ -56,7 +57,8 @@ class ModelCheckPoint(CallBack):
 
     
     def on_training_end(self,
-                        model: nn.Module):
+                        model: nn.Module, 
+                        **kwargs):
         if self.load_best_weights:
             model.load_state_dict(torch.load(self.filename))
 
@@ -79,7 +81,8 @@ class EarlyStopping(CallBack):
                 metrics: dict,
                 model: nn.Module,
                 filename: str,
-                verbose: bool=True):
+                verbose: bool=True,
+                **kwargs):
 
         if self.relation(metrics[self.monitored_metric], self.best_value):
             self.epochs = 0
@@ -95,6 +98,7 @@ class EarlyStopping(CallBack):
             
 
     def on_training_end(self,
-                        model: nn.Module):
+                        model: nn.Module,
+                        **kwargs):
         pass
 

@@ -42,10 +42,10 @@ def add_metrics(running: dict,
         for key in current:
             current[key] *= multiply_by
 
-    if not running:
-        running.update(current)
-    else:
-        for key, value in current.items():
+    for key, value in current.items():
+        if key not in running:
+            running[key] = value
+        else:
             running[key] += value
 
 
@@ -69,11 +69,12 @@ def log_metrics(metrics: dict,
             writer.add_scalar(f"{key} x {timestep}/{mode}", value / divide_by, total_timesteps)
 
     if isinstance(logs, dict):
-        if not logs:
-            logs.update({key: [value / divide_by] for key, value in metrics.items()})
-        else:
-            for key, value in metrics.items():
-                logs[key].append(value / divide_by)
+        for key, value in metrics.items():
+            if not key in logs:
+                logs[key] = [value / divide_by]
+            else:
+                for key, value in metrics.items():
+                    logs[key].append(value / divide_by)
     
     metrics.clear()
 
