@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
-from typing import Tuple, Union, Callable
+from typing import Tuple, Union, Callable, Optional, List
 from .trainer import ModelWithTrainer, Trainer
+from .callbacks import CallBack
+from torch.utils.data import DataLoader
 
 class PCAAutoencoder(ModelWithTrainer):
     def __init__(self, encoder: nn.ModuleList, decoder: nn.ModuleList, last_hidden_shape: int):
@@ -73,26 +75,26 @@ class PCAAutoencoder(ModelWithTrainer):
         return out, enc
     
     
-    def train_step(self, X, y, loss_func):
-        loss = self.__shared_eval_step(X, y, loss_func)
-        if isinstance(loss, tuple):
-            metrics = {"train loss": loss[0],
-                       "train reconstruction loss": loss[1],
-                       "train covariance loass": loss[2]}
+    def train_step(self, X: torch.Tensor, y: torch.Tensor, loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
+        loss, recon_loss, cov_loss = self.__shared_eval_step(X, y, loss_func)
+        if isinstance(loss_func, PCAAE_Loss):
+            metrics = {"train loss": loss.item(),
+                       "train reconstruction loss": recon_loss.item(),
+                       "train covariance loss": cov_loss.item()}
         else:
-            metrics = {"train loss": loss}
+            metrics = {"train loss": loss.item()}
 
         return loss, metrics
 
 
-    def eval_step(self, X, y, loss_func):
-        loss = self.__shared_eval_step(X, y, loss_func)
-        if isinstance(loss, tuple):
-            metrics = {"val loss": loss[0],
-                       "val reconstruction loss": loss[1],
-                       "val covariance loass": loss[2]}
+    def eval_step(self, X: torch.Tensor, y: torch.Tensor, loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
+        loss, recon_loss, cov_loss = self.__shared_eval_step(X, y, loss_func)
+        if isinstance(loss_func, PCAAE_Loss):
+            metrics = {"val loss": loss.item(),
+                       "val reconstruction loss": recon_loss.item(),
+                       "val covariance loss": cov_loss.item()}
         else:
-            metrics = {"val loss": loss}
+            metrics = {"val loss": loss.item()}
 
         return loss, metrics
 
@@ -100,8 +102,7 @@ class PCAAutoencoder(ModelWithTrainer):
     def __shared_eval_step(self, 
                         X: torch.Tensor, 
                         y: torch.Tensor, 
-                        loss_func: Union[nn.Module, Callable], 
-                        device: torch.device) -> Tuple[torch.Tensor, dict]:
+                        loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
         
         y_hat, hidden = self.forward(X)
 
@@ -110,35 +111,45 @@ class PCAAutoencoder(ModelWithTrainer):
         else:
             loss = loss_func(y_hat, y)
 
-        return loss        
+        return loss, recon_loss, cov_loss        
         
-    def custom_train(self, trainer: Trainer, goal_hidden_dim: int, device: torch.device, **kwargs):
-        outer_logs = {}
-        epochs = 0
-        steps = 0
-        hidden_dim = 1
 
+    def fit(self,
+            optimizer: torch.optim.Optimizer,
+            loss_func: Union[nn.Module, Callable],
+            epochs: int,
+            trainloader: DataLoader,
+            testloader: DataLoader,
+            goal_hidden_dim: int,
+            verbose: int=2,
+            print_every: Optional[int]=40,
+            log_to_tensorboard: bool=True,
+            callbacks: List[CallBack]=[],
+            device: torch.device=torch.device("cuda" if torch.cuda.is_available() else 'cpu'),
+            save_filename: Optional[str]=None,
+            close_writer_on_end: bool=True,):
+        
+        self.to(device)
+        trainer = Trainer(log_to_tensorboard=log_to_tensorboard, device=device)
+        hidden_dim = 1
         while hidden_dim < goal_hidden_dim:
-            if not epochs == 0:
-                trainer.epochs = epochs
-                trainer.steps = steps
+            if not trainer.epochs == 0:
                 self.increase_latentdim()
                 self.to(device)
                 hidden_dim += 1
-            print(f"Training with hidden dim: {hidden_dim}")
-            train_logs = trainer.train(model=self,
-                            device=device,
-                            close_writer_on_end=False,
-                            **kwargs)
-            trainer.log_metrics(train_logs, outer_logs, verbose=False)
-            epochs += trainer.epochs
-            steps += trainer.steps
-        
-        trainer.writer.close()
-        return outer_logs
-
-                
-
+            if verbose > 0:
+                print(f"Training with hidden dim: {hidden_dim}")
+            for e in range(epochs):
+                trainer.training_loop(model=self, trainloader=trainloader, loss_func=loss_func,
+                                      optimizer=optimizer, verbose=verbose, epoch=e, print_every=print_every)
+                trainer.validation_loop(model=self, testloader=testloader, loss_func=loss_func, verbose=verbose,
+                                        epoch=e)
+                if trainer.on_epoch_end(model=self, callbacks=callbacks, save_filename=f"{save_filename}_{hidden_dim}", verbose=verbose):
+                    break
+            trainer.on_training_end(model=self, callbacks=callbacks)
+        if close_writer_on_end:
+            trainer.writer.close()
+        return trainer.logs
 
 
 class PCAAE_Loss(nn.Module):

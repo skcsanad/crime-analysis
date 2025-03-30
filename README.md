@@ -12,13 +12,16 @@
 - [x] Before increasing the latent dimension, the model should load back the weigths from the best model that has been saved
 - [x] Create the dockerfile
 - [x] Clean up requirements.txt
-- [ ] Add automatic downloading and preprocessing of the data to the dockerfile
 - [x] Add tensorboard tracking to PCAAAutoencoder training loop
 - [x] Add global epochs and global steps to loss logging
 - [x] Make model saving monitor reconstruction loss in the training loop when PCAAE_Loss is applied
 - [x] Create separate module with model definiton and modular training loop
+- [x] Fix model checkpoints (so that they monitor the list in the logs)
+- [ ] Add encoding the validation set to validation loop and plotting the hidden space in tensorboard
+- [ ] Add normal autoencoder definiton to models module and run the old trainings with them again
+- [ ] Add automatic downloading and preprocessing of the data to the dockerfile
 - [ ] Test out gpu access within docker image on another machine
-- [ ] Clean up the code, create a new branch for this state (clean version will go to the main branch)
+- [ ] Clean up the code, create a new folder for the tidy version of experiments
 - [ ] Add more detailed description to readme
 
 This will be updated with the data sources and a more detailed description
