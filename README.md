@@ -9,13 +9,14 @@
 - [x] Implement covariance loss
 - [x] Make training loop agnostic to the loss function
 - [x] Add tracking and printing of separate parts of loss (reconstruction, covariance and complete loss) to the training loop
-- [ ] Before increasing the latent dimension, the model should load back the weigths from the best model that has been saved
+- [x] Before increasing the latent dimension, the model should load back the weigths from the best model that has been saved
 - [x] Create the dockerfile
 - [x] Clean up requirements.txt
 - [ ] Add automatic downloading and preprocessing of the data to the dockerfile
 - [x] Add tensorboard tracking to PCAAAutoencoder training loop
-- [ ] Add global epochs and global steps to loss logging
-- [ ] Make model saving monitor reconstruction loss in the training loop when PCAAE_Loss is applied
+- [x] Add global epochs and global steps to loss logging
+- [x] Make model saving monitor reconstruction loss in the training loop when PCAAE_Loss is applied
+- [x] Create separate module with model definiton and modular training loop
 - [ ] Test out gpu access within docker image on another machine
 - [ ] Clean up the code, create a new branch for this state (clean version will go to the main branch)
 - [ ] Add more detailed description to readme
