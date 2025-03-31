@@ -17,7 +17,7 @@ RUN pip install torch==2.1.0+cu121 torchvision==0.16.0+cu121 torchaudio==2.1.0 \
 
 # Add your other packages
 COPY requirements.txt .
-RUN pip install --no-cache-dir --no-deps -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install jupyter
 
 # Setup workspace
