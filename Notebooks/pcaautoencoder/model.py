@@ -96,22 +96,7 @@ class PCAAutoencoder(ModelWithTrainer):
         else:
             metrics = {"val loss": loss.item()}
 
-        return loss, metrics
-
-
-    def __shared_eval_step(self, 
-                        X: torch.Tensor, 
-                        y: torch.Tensor, 
-                        loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
-        
-        y_hat, hidden = self.forward(X)
-
-        if isinstance(loss_func, PCAAE_Loss):
-            loss, recon_loss, cov_loss = loss_func(y_hat, y, hidden)
-        else:
-            loss = loss_func(y_hat, y)
-
-        return loss, recon_loss, cov_loss        
+        return loss, metrics       
         
 
     def fit(self,
@@ -150,6 +135,22 @@ class PCAAutoencoder(ModelWithTrainer):
         if close_writer_on_end:
             trainer.writer.close()
         return trainer.logs
+    
+    
+    def __shared_eval_step(self, 
+                        X: torch.Tensor, 
+                        y: torch.Tensor, 
+                        loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
+        
+        y_hat, hidden = self.forward(X)
+
+        if isinstance(loss_func, PCAAE_Loss):
+            loss, recon_loss, cov_loss = loss_func(y_hat, y, hidden)
+        else:
+            loss = loss_func(y_hat, y)
+
+        return loss, recon_loss, cov_loss 
+
 
 
 class PCAAE_Loss(nn.Module):

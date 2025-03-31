@@ -17,7 +17,9 @@
 - [x] Make model saving monitor reconstruction loss in the training loop when PCAAE_Loss is applied
 - [x] Create separate module with model definiton and modular training loop
 - [x] Fix model checkpoints (so that they monitor the list in the logs)
+- [x] Add way to remap original categories to the 1h converted, shuffled samples
 - [ ] Add encoding the validation set to validation loop and plotting the hidden space in tensorboard
+- [ ] Modify training loop for PCAAutoencoder to remap the categories
 - [ ] Add normal autoencoder definiton to models module and run the old trainings with them again
 - [ ] Add automatic downloading and preprocessing of the data to the dockerfile
 - [ ] Test out gpu access within docker image on another machine
