@@ -4,6 +4,7 @@ from typing import Tuple, Union, Callable, Optional, List
 from .trainer import ModelWithTrainer, Trainer
 from .callbacks import CallBack
 from torch.utils.data import DataLoader
+from .utils import remap_metadata_pt
 
 class PCAAutoencoder(ModelWithTrainer):
     def __init__(self, encoder: nn.ModuleList, decoder: nn.ModuleList, last_hidden_shape: int):
@@ -110,9 +111,11 @@ class PCAAutoencoder(ModelWithTrainer):
             print_every: Optional[int]=40,
             log_to_tensorboard: bool=True,
             callbacks: List[CallBack]=[],
+            embed_hidden: bool=True,
+            categorymapper: Optional[dict]=None,
             device: torch.device=torch.device("cuda" if torch.cuda.is_available() else 'cpu'),
             save_filename: Optional[str]=None,
-            close_writer_on_end: bool=True,):
+            close_writer_on_end: bool=True):
         
         self.to(device)
         trainer = Trainer(log_to_tensorboard=log_to_tensorboard, device=device)
@@ -131,7 +134,36 @@ class PCAAutoencoder(ModelWithTrainer):
                                         epoch=e)
                 if trainer.on_epoch_end(model=self, callbacks=callbacks, save_filename=f"{save_filename}_{hidden_dim}", verbose=verbose):
                     break
+
             trainer.on_training_end(model=self, callbacks=callbacks)
+
+            if embed_hidden and categorymapper is not None:
+                # Creating the hidden space and adding it as an embedding to tensorboard
+                self.eval()
+                all_hidden_states = []
+                all_metadata  = {}
+                with torch.no_grad():
+                    for X, _ in testloader:
+                        # Remapping metadata and concatenating throughot all batches
+                        metadata = remap_metadata_pt(X, categorymapper)
+                        for key, value in metadata.items():
+                            if key in all_metadata:
+                                all_metadata[key] += (value)
+                            else:
+                                all_metadata[key] = value
+
+                        X = X.to(device)
+                        hidden = self.encode(X)
+                        all_hidden_states.append(hidden.cpu().detach())
+                all_hidden_states = torch.cat(all_hidden_states, dim=0)
+                metadata_headers = list(all_metadata.keys())
+                metadata_values = list(zip(*all_metadata.values()))
+                
+                trainer.writer.add_embedding(all_hidden_states, metadata=metadata_values,
+                                             global_step=hidden_dim, metadata_header=metadata_headers,
+                                             tag=f"pcaautoencoder_hidden_dim{hidden_dim}")
+            
+
         if close_writer_on_end:
             trainer.writer.close()
         return trainer.logs
@@ -149,8 +181,8 @@ class PCAAutoencoder(ModelWithTrainer):
         else:
             loss = loss_func(y_hat, y)
 
-        return loss, recon_loss, cov_loss 
-
+        return loss, recon_loss, cov_loss
+    
 
 
 class PCAAE_Loss(nn.Module):
