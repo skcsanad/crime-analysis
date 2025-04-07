@@ -10,6 +10,27 @@ from pandas.tseries.holiday import USFederalHolidayCalendar
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
+import subprocess
+
+# Define the directory
+data_dir = 'Data'
+
+# Create the directory if it doesn't exist
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir, exist_ok=True)
+    print(f"✅ Created directory: {data_dir}")
+
+    # Download the zip file
+    download_command = "gdown 1OXyx7Vd2OHiDZNypbbBuLTP_Wyy6cm1r -O Data/NIBRS_ND_2021.zip"
+    subprocess.run(download_command, shell=True, check=True)
+    
+    # Unzip the file
+    unzip_command = "unzip Data/NIBRS_ND_2021.zip -d Data"
+    subprocess.run(unzip_command, shell=True, check=True)
+    
+    # Remove the zip file
+    os.remove("Data/NIBRS_ND_2021.zip")
+    print(f"✅ Download and extraction completed successfully.")
 
 # %%
 state = 'ND-'
@@ -22,7 +43,7 @@ for file in file_list:
         csv_list.append(file)
 # dictionary of dataframes corresponding to each csv file, where the key is the
 # dataframe name and the value is the actual data frame
-df_dict = {file[:-4].lower(): pd.read_csv(os.path.join('..', 'Data', 'NIBRS_ND_2021', 'original', file))
+df_dict = {file[:-4].lower(): pd.read_csv(os.path.join('Data', 'NIBRS_ND_2021', 'original', file))
            for file in csv_list}
 # Since we chose the state and year, data_year and state columns don't give any extra information
 # so we drop them

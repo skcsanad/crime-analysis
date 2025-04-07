@@ -21,7 +21,8 @@
 - [x] Add encoding the validation set to validation loop and plotting the hidden space in tensorboard
 - [x] Modify training loop for PCAAutoencoder to remap the categories
 - [ ] Add normal autoencoder definiton to models module and run the old trainings with them again
-- [ ] Add automatic downloading and preprocessing of the data to the dockerfile
+- [x] Add automatic downloading and preprocessing of the data to the dockerfile
+- [ ] Fix tensorboard session starting bug
 - [ ] Test out gpu access within docker image on another machine
 - [ ] Clean up the code, create a new folder for the tidy version of experiments
 - [ ] Add more detailed description to readme
