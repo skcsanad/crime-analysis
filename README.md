@@ -22,7 +22,7 @@
 - [x] Modify training loop for PCAAutoencoder to remap the categories
 - [ ] Add normal autoencoder definiton to models module and run the old trainings with them again
 - [x] Add automatic downloading and preprocessing of the data to the dockerfile
-- [ ] Fix tensorboard session starting bug
+- [x] Fix tensorboard session starting bug
 - [ ] Test out gpu access within docker image on another machine
 - [ ] Clean up the code, create a new folder for the tidy version of experiments
 - [ ] Add more detailed description to readme

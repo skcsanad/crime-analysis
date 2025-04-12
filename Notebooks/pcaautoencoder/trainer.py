@@ -4,6 +4,8 @@ from typing import Union, Callable, Tuple, Optional, List
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from .callbacks import *
+import socket
+import subprocess
 
 class ModelWithTrainer(nn.Module):
     def __init__(self):
@@ -81,6 +83,11 @@ class Trainer():
         self.steps = 0
         if log_to_tensorboard:
             self.writer = SummaryWriter()
+            if not self.__is_port_in_use():
+                subprocess.Popen(["tensorboard", "--logdir=runs/", "--port=6006", "--reload_multifile=true"])
+                print("TensorBoard started at http://localhost:6006")
+            else:
+                print("TensorBoard is already running at http://localhost:6006")
         else:
             self.writer = None
         self.device = device
@@ -238,6 +245,11 @@ class Trainer():
     def on_training_end(self, model: ModelWithTrainer, callbacks: List[CallBack]):
         for callback in callbacks:
             callback.on_training_end(model)
+
+    
+    def __is_port_in_use(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            return s.connect_ex(('localhost', 6006)) == 0
 
             
 

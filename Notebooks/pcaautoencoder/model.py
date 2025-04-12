@@ -158,8 +158,8 @@ class PCAAutoencoder(ModelWithTrainer):
                 all_hidden_states = torch.cat(all_hidden_states, dim=0)
                 metadata_headers = list(all_metadata.keys())
                 metadata_values = list(zip(*all_metadata.values()))
-                
-                trainer.writer.add_embedding(all_hidden_states, metadata=metadata_values,
+                #print(all_hidden_states.shape)
+                trainer.writer.add_embedding(all_hidden_states.clone().detach(), metadata=metadata_values,
                                              global_step=hidden_dim, metadata_header=metadata_headers,
                                              tag=f"pcaautoencoder_hidden_dim{hidden_dim}")
             
