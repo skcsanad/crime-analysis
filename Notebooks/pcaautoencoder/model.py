@@ -6,6 +6,7 @@ from .callbacks import CallBack
 from torch.utils.data import DataLoader
 from .utils import remap_metadata_pt
 
+
 class PCAAutoencoder(ModelWithTrainer):
     def __init__(self, encoder: nn.ModuleList, decoder: nn.ModuleList, last_hidden_shape: int):
         super().__init__()
@@ -180,8 +181,113 @@ class PCAAutoencoder(ModelWithTrainer):
             loss, recon_loss, cov_loss = loss_func(y_hat, y, hidden)
         else:
             loss = loss_func(y_hat, y)
+            recon_loss = 0
+            cov_loss = 0
 
         return loss, recon_loss, cov_loss
+    
+
+class AutoEncoder(ModelWithTrainer):
+    def __init__(self, encoder, decoder):
+        super().__init__()
+        self.encoder = encoder
+        self.decoder = decoder
+
+    def encode(self, x):
+        for layer in self.encoder:
+            x = layer(x)
+        return x
+    
+    def decode(self, x):
+        for layer in self.decoder:
+            x = layer(x)
+        return x
+    
+    def forward(self, x):
+        enc = self.encode(x)
+        out = self.decode(enc)
+        return out, enc
+    
+    def train_step(self, X: torch.Tensor, y: torch.Tensor, loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
+        loss = self.__shared_eval_step(X, y, loss_func)
+        metrics = {"train loss": loss.item()}
+        return loss, metrics
+
+
+    def eval_step(self, X: torch.Tensor, y: torch.Tensor, loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
+        loss = self.__shared_eval_step(X, y, loss_func)
+        metrics = {"val loss": loss.item()}
+        return loss, metrics
+
+
+    def fit(self,
+                optimizer: torch.optim.Optimizer,
+                loss_func: Union[nn.Module, Callable],
+                epochs: int,
+                trainloader: DataLoader,
+                testloader: DataLoader,
+                verbose: int=2,
+                print_every: Optional[int]=40,
+                log_to_tensorboard: bool=True,
+                callbacks: List[CallBack]=[],
+                embed_hidden: bool=True,
+                categorymapper: Optional[dict]=None,
+                device: torch.device=torch.device("cuda" if torch.cuda.is_available() else 'cpu'),
+                save_filename: Optional[str]=None,
+                close_writer_on_end: bool=True):
+            
+            self.to(device)
+            trainer = Trainer(log_to_tensorboard=log_to_tensorboard, device=device)
+            if not trainer.epochs == 0:
+                self.to(device)
+            for e in range(epochs):
+                trainer.training_loop(model=self, trainloader=trainloader, loss_func=loss_func,
+                                    optimizer=optimizer, verbose=verbose, epoch=e, print_every=print_every)
+                trainer.validation_loop(model=self, testloader=testloader, loss_func=loss_func, verbose=verbose,
+                                        epoch=e)
+                if trainer.on_epoch_end(model=self, callbacks=callbacks, save_filename=save_filename, verbose=verbose):
+                    break
+
+            trainer.on_training_end(model=self, callbacks=callbacks)
+
+            if embed_hidden and categorymapper is not None:
+                # Creating the hidden space and adding it as an embedding to tensorboard
+                self.eval()
+                all_hidden_states = []
+                all_metadata  = {}
+                with torch.no_grad():
+                    for X, _ in testloader:
+                        # Remapping metadata and concatenating throughot all batches
+                        metadata = remap_metadata_pt(X, categorymapper)
+                        for key, value in metadata.items():
+                            if key in all_metadata:
+                                all_metadata[key] += (value)
+                            else:
+                                all_metadata[key] = value
+
+                        X = X.to(device)
+                        hidden = self.encode(X)
+                        all_hidden_states.append(hidden.cpu().detach())
+                all_hidden_states = torch.cat(all_hidden_states, dim=0)
+                metadata_headers = list(all_metadata.keys())
+                metadata_values = list(zip(*all_metadata.values()))
+                trainer.writer.add_embedding(all_hidden_states.clone().detach(), metadata=metadata_values,
+                                            global_step=1, metadata_header=metadata_headers,
+                                            tag=f"autoencoder")
+                
+            if close_writer_on_end:
+                trainer.writer.close()
+            return trainer.logs
+    
+
+    def __shared_eval_step(self, 
+                        X: torch.Tensor, 
+                        y: torch.Tensor, 
+                        loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
+        
+        y_hat, hidden = self.forward(X)
+        loss = loss_func(y_hat, y)
+        return loss
     
 
 
