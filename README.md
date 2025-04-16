@@ -56,9 +56,14 @@ Building the docker image:
 ```text
 docker build -t pytorch-gpu-jupyter .
 ```
-Running the container (automatically downloads and preprocesses the data):
+Running the container (automatically downloads and preprocesses the data) and launching jupyter notebook:
 ```text
 docker run --rm -it --gpus all -p 8888:8888 -p 6006:6006 -v "%cd%:/workspace" pytorch-gpu-jupyter
+```
+Running the container with bash (running the preprocessing script manually):
+```text
+docker run --rm -it --gpus all -p 8888:8888 -p 6006:6006 -v "%cd%:/workspace" pytorch-gpu-jupyter bash
+python preprocess.py
 ```
 
 
