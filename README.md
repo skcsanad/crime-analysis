@@ -1,6 +1,6 @@
 # Crime analysis project
 
-## **Contents**:
+## **Contents**
 ```text
 crime_analysis/
 ├── old/                                    # Containts the old version of the project
@@ -36,23 +36,29 @@ crime_analysis/
 ├── preprocess.py                           # Creates the process data used for training
 ├── README.md                               # Project description and instructions
 └── requirements.txt                        # Dependencies of the project
-
-
-
-################ Created only after running the docker image ################
-└── Data/                           # Contains the data used for the project
-    ├── original/                   # Contains the original .csv files as 
-                                    # present at NIBRS website
-    ├── processed/                  # Contains the preprocessed version 
-                                    # of the data
-        ├── input.csv               # Contains the the data in the format it
-                                    # is used to train the autoencoders
-        ├── cat_out.csv             # Categorical output data, previously used
-                                    # for predicting categorical features,
-                                    # currently not in use
-        └── num_out.csv             # Numerical output data, previously used 
-                                    # for predicting numerical features,
-                                    # currently not in use
+#################### Created only after running the docker image ####################
+└── Data/                                   # Contains the data used for the project
+    ├── original/                           # Contains the original .csv files as 
+                                            # present at NIBRS website
+    ├── processed/                          # Contains the preprocessed version 
+                                            # of the data
+        ├── input.csv                       # Contains the the data in the format it
+                                            # is used to train the autoencoders
+        ├── cat_out.csv                     # Categorical output data, previously used
+                                            # for predicting categorical features,
+                                            # currently not in use
+        └── num_out.csv                     # Numerical output data, previously used 
+                                            # for predicting numerical features,
+                                            # currently not in use
+```
+## **Usage**
+Building the docker image:
+```text
+docker build -t pytorch-gpu-jupyter .
+```
+Running the container (automatically downloads and preprocesses the data):
+```text
+docker run --rm -it --gpus all -p 8888:8888 -p 6006:6006 -v "%cd%:/workspace" pytorch-gpu-jupyter
 ```
 
 
