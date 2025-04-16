@@ -1,0 +1,5 @@
+embeddings {
+  tensor_name: "pcaautoencoder_hidden_dim1:00001"
+  metadata_path: "00001/pcaautoencoder_hidden_dim1\\metadata.tsv"
+  tensor_path: "00001/pcaautoencoder_hidden_dim1\\tensors.tsv"
+}
