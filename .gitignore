@@ -10,10 +10,10 @@ __pycache__/
 *pyc
 
 # Tensorboard logs
-Notebooks/runs
+runs/
 
 # Unused notebooks
-Notebooks/new.ipynb
+new.ipynb
 
 
 
