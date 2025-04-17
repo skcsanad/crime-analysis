@@ -87,9 +87,10 @@ python preprocess.py
 - [x] Add automatic downloading and preprocessing of the data to the dockerfile
 - [x] Fix tensorboard session starting bug
 - [X] Clean up the code, create a new folder for the tidy version of experiments
+- [X] Make PCAAutoencoder child class of autoencoder
+- [X] Make it optional to embed the hidden space of all of the training data along with the validation data
 - [ ] Rerun experiments and save their logs in the new folder
 - [ ] Add_metrics and log_metrics in Trainer should not be static methods
-- [ ] Make it optional to embed the hidden space of all of the training data along with the validation data
 - [ ] Test out gpu access within docker image on another machine
 - [ ] Add more detailed description to readme
 

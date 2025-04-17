@@ -16,7 +16,7 @@ class ModelWithTrainer(nn.Module):
         raise NotImplementedError("Subclasses must implement forward()")
 
 
-    def __shared_eval_step(self,
+    def _shared_eval_step(self,
                            X: torch.Tensor,
                            y: torch.Tensor,
                            loss_func: Union[nn.Module, Callable]) -> torch.Tensor:
@@ -31,7 +31,7 @@ class ModelWithTrainer(nn.Module):
                    y: torch.Tensor,
                    loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
         
-        loss = self.__shared_eval_step(X, y, loss_func)
+        loss = self._shared_eval_step(X, y, loss_func)
         metrics = {"train loss": loss.item()}
         return loss, metrics
     
@@ -40,7 +40,7 @@ class ModelWithTrainer(nn.Module):
                   y: torch.Tensor,
                   loss_func: Union[nn.Module, Callable]) -> Tuple[torch.Tensor, dict]:
         
-        loss = self.__shared_eval_step(X, y, loss_func)
+        loss = self._shared_eval_step(X, y, loss_func)
         metrics = {"test loss": loss.item()}
         return loss, metrics
 
