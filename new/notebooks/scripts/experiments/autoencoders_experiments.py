@@ -8,8 +8,8 @@ from sklearn.preprocessing import MinMaxScaler
 import torch
 import sys
 sys.path.append("../..")
-from modules.autoencoders import *
-from modules.modelwithtrainer import *
+from modules.autoencoders import AutoEncoder, MyDataset
+from modules.modelwithtrainer import EarlyStopping, ModelCheckPoint
 
 
 # Loading data
@@ -61,5 +61,14 @@ y_train = torch.nan_to_num(torch.Tensor(train.values.astype(np.float32)))
 
 X_test = torch.nan_to_num(torch.Tensor(test.values.astype(np.float32)))
 y_test = torch.nan_to_num(torch.Tensor(test.values.astype(np.float32)))
+
+# Dataloaders
+trainset = MyDataset(X_train, y_train)
+testset = MyDataset(X_test, y_test)
+trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
+testloader = DataLoader(testset, batch_size=32, shuffle=False)
+
+
+
 
 

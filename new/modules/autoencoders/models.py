@@ -278,9 +278,31 @@ class PCAAutoEncoder(AutoEncoder):
                 new_decoder.append(layer)
         
         self.decoder = new_decoder  # Ensure it's still a ModuleList
+
+
+
+class MixedActivation(nn.Module):
+    def __init__(self, limits: List[int], activations: nn.ModuleList, dim: int):
+        super().__init__()
+        self.limits = limits
+        self.activations = activations
+        self.dim = dim
+
+
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        out_tensors = []
+        prev_limit = 0
+        for i, limit in enumerate(self.limits):
+            idx = torch.arange(prev_limit, limit, dtype=torch.int64, device=X.device)
+            chunk = torch.index_select(X, self.dim, idx)
+            out_tensor = self.activations[i](chunk)
+            out_tensors.append(out_tensor)
+            prev_limit = limit
+        out_tensor = torch.cat(out_tensors, dim=self.dim)
+        return out_tensor
+
+
         
-
-
 class PCAAE_Loss(nn.Module):
     def __init__(self, loss_func: Union[nn.Module, Callable], lambda_cov=0.01):
         super().__init__()

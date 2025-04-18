@@ -25,7 +25,7 @@ crime_analysis/
         ├── auteoncoders/                   # Model defintions
             ├── __init__.py                 # Init file
             ├── ae_utils.py                 # utility functions for training autoencoders on tabular data
-            └── models.py                   # Class definitons for PCAAutoencoder, AutoEncoder
+            └── models.py                   # Class definitons for AutoEncoder, PCAAutoEncoder, MixedActivation
                                             # and PCAAELoss
     ├── notebooks/                          # Contains notebooks with the trainings/experiments
         ├── test_modules/                   # Testing if importing modules works with the current folder structure
@@ -89,6 +89,7 @@ python preprocess.py
 - [X] Clean up the code, create a new folder for the tidy version of experiments
 - [X] Make PCAAutoencoder child class of autoencoder
 - [X] Make it optional to embed the hidden space of all of the training data along with the validation data
+- [X] Create class for mixed activation function
 - [ ] Rerun experiments and save their logs in the new folder
 - [ ] Add_metrics and log_metrics in Trainer should not be static methods
 - [ ] Test out gpu access within docker image on another machine
