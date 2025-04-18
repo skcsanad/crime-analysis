@@ -6,12 +6,10 @@ from abc import ABC, abstractmethod
 
 
 class CallBack(ABC):
-    @abstractmethod
-    def on_epoch_end(self):
+    def on_epoch_end(self, *args, **kwargs):
         pass
 
-    @abstractmethod
-    def on_training_end(self):
+    def on_training_end(self, *args, **kwargs):
         pass
 
 
@@ -30,12 +28,11 @@ class ModelCheckPoint(CallBack):
         self.save_location = save_location
 
 
-    def __save_model(self, 
+    def _save_model(self, 
                      model: nn.Module, 
                      filename: str):
         
-        if not os.path.exists(self.save_location):
-            os.mkdir(self.save_location)
+        os.makedirs(self.save_location, exist_ok=True)
         torch.save(model.state_dict(), f"{self.save_location}/{filename}.pt")
     
 
@@ -49,7 +46,7 @@ class ModelCheckPoint(CallBack):
         if self.relation(metrics[self.monitored_metric][-1], self.best_value):
             if verbose:
                 print(f"{self.monitored_metric} {self.to_print} from {self.best_value} to {metrics[self.monitored_metric][-1]}")
-            self.__save_model(model, filename)
+            self._save_model(model, filename)
             self.best_value = metrics[self.monitored_metric][-1]
             self.filename = filename
 
@@ -59,7 +56,7 @@ class ModelCheckPoint(CallBack):
     def on_training_end(self,
                         model: nn.Module, 
                         **kwargs):
-        if self.load_best_weights:
+        if self.load_best_weights and hasattr(self, "filename"):
             model.load_state_dict(torch.load(f"{self.save_location}/{self.filename}.pt"))
 
 
@@ -93,14 +90,9 @@ class EarlyStopping(CallBack):
             self.epochs += 1
             if self.epochs > self.patience:
                 if verbose:
-                    print(f"{metrics[self.monitored_metric][-1]} did not {self.to_print} in {self.epochs} epochs, training stopped")
+                    print(f"{self.monitored_metric} did not {self.to_print} from {self.best_value} \
+                          in {self.epochs} epochs, training stopped")
                 return True
             else:
                 return False
-            
-
-    def on_training_end(self,
-                        model: nn.Module,
-                        **kwargs):
-        pass
 

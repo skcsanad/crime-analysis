@@ -1,0 +1,5 @@
+embeddings {
+  tensor_name: "autoencoder:00001"
+  metadata_path: "00001/autoencoder\\metadata.tsv"
+  tensor_path: "00001/autoencoder\\tensors.tsv"
+}

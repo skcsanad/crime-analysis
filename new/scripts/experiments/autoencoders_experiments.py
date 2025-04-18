@@ -11,6 +11,7 @@ sys.path.append("../..")
 from modules.autoencoders import AutoEncoder, MixedActivation, MixedLoss, MyDataset
 from modules.modelwithtrainer import EarlyStopping, ModelCheckPoint
 import json
+import os
 
 
 # Loading data
@@ -136,6 +137,7 @@ model_configs = [
 ]
 
 all_logs = {}
+os.makedirs("complete_models", exist_ok=True)
 
 for config in model_configs:
     model = AutoEncoder(encoder=config["encoder"], decoder=config["decoder"])
@@ -155,12 +157,12 @@ for config in model_configs:
     logs = model.fit(optimizer, criterion, epochs, trainloader, testloader, callbacks=callbacks,
                      save_filename=config["save_filename"],
                      embed_hidden=[trainloader, testloader], categorymapper=categorymapper)
-    
+        
     all_logs[config["save_filename"]] = logs
-
+    torch.save(model, f"complete_models/{config['save_filename']}.pt")
 
 with open("logs.json", "w") as file:
-    json.dump(logs, file)
+    json.dump(all_logs, file)
 
 
     

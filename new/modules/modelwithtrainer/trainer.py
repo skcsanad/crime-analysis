@@ -83,7 +83,7 @@ class Trainer():
         self.steps = 0
         if log_to_tensorboard:
             self.writer = SummaryWriter()
-            if not self.__is_port_in_use():
+            if not self._is_port_in_use():
                 subprocess.Popen(["tensorboard", "--logdir=runs/", "--port=6006", "--reload_multifile=true"])
                 print("TensorBoard started at http://localhost:6006")
             else:
@@ -243,6 +243,6 @@ class Trainer():
             callback.on_training_end(model)
 
     
-    def __is_port_in_use(self):
+    def _is_port_in_use(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             return s.connect_ex(('localhost', 6006)) == 0

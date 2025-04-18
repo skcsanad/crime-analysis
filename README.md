@@ -93,7 +93,7 @@ python preprocess.py
 - [X] Make PCAAutoencoder child class of autoencoder
 - [X] Make it optional to embed the hidden space of all of the training data along with the validation data
 - [X] Create class for mixed activation function
-- [ ] Rerun experiments and save their logs in the new folder
+- [X] Rerun experiments and save their logs in the new folder
 - [ ] Add_metrics and log_metrics in Trainer should not be static methods
 - [ ] Test out gpu access within docker image on another machine
 - [ ] Add more detailed description to readme
