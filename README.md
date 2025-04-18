@@ -31,6 +31,9 @@ crime_analysis/
         ├── test_modules/                   # Testing if importing modules works with the current folder structure
             ├── try_autoencoder.ipynb       # Testing autoencoders
             └── try_pcaautoencoder.ipynb    # Testing pcaautoencoders
+    ├── scripts/                            # Contains scripts with trainings/experiments
+        └── experiments/                    # Contains experiments
+            └── autoencoders_experiments.py # Contains the script to rerun the original experiments 
 ├── .gitignore                              # Contains files to be ignored by git
 ├── Dockerfile                              # Builds the docker image
 ├── preprocess.py                           # Creates the process data used for training

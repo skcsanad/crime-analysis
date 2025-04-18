@@ -300,9 +300,31 @@ class MixedActivation(nn.Module):
             prev_limit = limit
         out_tensor = torch.cat(out_tensors, dim=self.dim)
         return out_tensor
+    
 
 
-        
+class MixedLoss(nn.Module):
+    def __init__(self, limits: List[int], losses: nn.ModuleList, dim: int):
+        super().__init__()
+        self.limits = limits
+        self.losses = losses
+        self.dim = dim
+
+
+    def forward(self, y_hat: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+        all_losses = 0
+        prev_limit = 0
+        for i, limit in enumerate(self.limits):
+            idx = torch.arange(prev_limit, limit, dtype=torch.int64, device=y_hat.device)
+            y_hat_chunk = torch.index_select(y_hat, self.dim, idx)
+            y_chunk = torch.index_select(y, self.dim, idx)
+            loss = self.losses[i](y_hat_chunk, y_chunk)
+            all_losses += loss
+            prev_limit = limit
+        return all_losses
+            
+    
+
 class PCAAE_Loss(nn.Module):
     def __init__(self, loss_func: Union[nn.Module, Callable], lambda_cov=0.01):
         super().__init__()
